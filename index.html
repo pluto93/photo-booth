@@ -205,9 +205,29 @@
     text-align:center;
     margin-top:12px;
   }
+  .theme-toggle{
+    position:fixed;
+    top:16px;
+    right:16px;
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    border:1px solid var(--border);
+    background:var(--panel);
+    color:var(--ink);
+    font-size:18px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 4px 10px rgba(0,0,0,0.15);
+    z-index:10;
+  }
+  .theme-toggle:hover{ border-color:var(--accent); }
 </style>
 </head>
 <body>
+<button id="themeToggle" class="theme-toggle" aria-label="Toggle dark/light mode" title="Toggle dark/light mode">🌓</button>
 <div class="wrap">
   <h1>Our city, forever in our memories &#9829;</h1>
   <p class="sub">I love you so much darling. Use this to always remember our first year in Edinburgh.<br>Upload up to four photos below, then watch your strip print out.</p>
@@ -271,7 +291,7 @@ const SLOTS = [
 ];
 const FRAME_H = 1536;
 const HEADER_H = 190;
-const FOOTER_H = 190;
+const FOOTER_H = 260;
 const H = HEADER_H + FRAME_H + FOOTER_H;
 canvas.height = H;
 
@@ -284,6 +304,27 @@ const printBtn = document.getElementById('printBtn');
 const downloadBtn = document.getElementById('downloadBtn');
 
 uploadLabel.addEventListener('click', () => fileInput.click());
+
+const themeToggle = document.getElementById('themeToggle');
+let currentTheme = 'auto';
+function applyTheme(theme){
+  if (theme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+    themeToggle.textContent = '☀️';
+  } else if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeToggle.textContent = '🌙';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeToggle.textContent = '🌓';
+  }
+  currentTheme = theme;
+}
+themeToggle.addEventListener('click', () => {
+  const order = ['auto', 'light', 'dark'];
+  applyTheme(order[(order.indexOf(currentTheme) + 1) % order.length]);
+});
+applyTheme('auto');
 
 fileInput.addEventListener('change', (e) => {
   const files = Array.from(e.target.files).slice(0, 4);
@@ -479,7 +520,13 @@ function render(){
   ctx.font = "15px 'Special Elite', monospace";
   ctx.fillStyle = '#5c5344';
   const dateText = document.getElementById('dateText').value || '';
-  ctx.fillText(dateText, W/2, footerTop + 74 + bottomLines.length * bottomLineH + 8);
+  const dateY = footerTop + 74 + bottomLines.length * bottomLineH + 8;
+  ctx.fillText(dateText, W/2, dateY);
+
+  ctx.font = "15px 'Special Elite', monospace";
+  ctx.fillStyle = '#5c5344';
+  ctx.fillText('From: Mansi, To: Aadhi', W/2, dateY + 34);
+  ctx.fillText('18/09/2026', W/2, dateY + 58);
 }
 
 function triggerPrint(){
